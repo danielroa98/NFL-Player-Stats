@@ -170,8 +170,9 @@ if st.button(f"View {selected_player}'s stats"):
     graph_title = f"Stats for {selected_player} compared with the NFL"
 
     plt.figure()
-    sns.barplot(data=average_league_stats).set(title=graph_title)
-    sns.scatterplot(data=individual_player.transpose())
+    leage_plot = sns.barplot(data=average_league_stats).set(title=graph_title)
+    player_plot = sns.scatterplot(data=individual_player.transpose())
+    player_plot.legend_.remove()
     st.pyplot()
 
 st.markdown("""
