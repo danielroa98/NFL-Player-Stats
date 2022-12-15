@@ -103,19 +103,40 @@ average_league_stats = league_avg(player_stats)
 # st.markdown("### Average statistics per team")
 # st.dataframe(average_stats)
 
+with tab1:
+    st.markdown("""
+    ## About this section
+    The main usage for the _Rushing_ section is to better understand and analyze the rushing statistics the players had during a season.
+
+    It can be a past season or a current season.
+
+    ## About the data
+    Some players have been in multiple teams throughout a season, that's why you may find some team names such as __2TM__.
+
+    At the moment, the data from these players will be managed as if they had belonged to a team named "__2TM__" or whichever amount of teams they've been at in a single season.
+
+    ## How can I (as a user) filter the data?
+    It's pretty easy, in the sidebar you'll find a section titled _Sort data_ in there you'll have the following options to filter the data:
+    - Season
+        - The seasons range from 1980 to the current season (2022).
+    - Team 
+    - Position
+    - Player age
+    """)
+
 with tab2:
     # Data displaying
     st.markdown("### Displaying player stats of the Selected team(s)")
     st.write('Data Dimension: ' + str(df_selected_team.shape[0]) + ' rows and ' + str(
         df_selected_team.shape[1]) + ' columns.')
-    st.dataframe(df_selected_team)
+    st.dataframe(df_selected_team, use_container_width=True)
     st.markdown(download_csv(df_selected_team), unsafe_allow_html=True)
 
 with tab3:
     # League average
     st.markdown(
         f"### Average statistics for the entire NFL in the {season_to_analyze} season")
-    st.dataframe(average_league_stats)
+    st.dataframe(average_league_stats, use_container_width=True)
 
     # if st.button("View League bargraph"):
     st.markdown("#### Graph of the NFL")
@@ -141,7 +162,7 @@ with tab4:
     avg_team_stats = team_avg(player_stats, team=selected_team)
 
     st.markdown(f"#### Average statistics for {selected_team}")
-    st.dataframe(avg_team_stats)
+    st.dataframe(avg_team_stats, use_container_width=True)
 
     if st.button("View team bargraph"):
         tm_title = f"{selected_team} Average"
@@ -150,8 +171,6 @@ with tab4:
         plt.figure()
         sns.barplot(data=avg_team_stats).set(title=tm_title)
         st.pyplot()
-
-# TODO: implement function to compare team stats and print if it was better, average or worse than the NFL's averages.
 
 with tab5:
     # Player visualizations
@@ -166,7 +185,7 @@ with tab5:
         player_df=player_stats, player_name=selected_player)
 
     st.markdown(f"#### Statistics for {selected_player}")
-    st.dataframe(individual_player)
+    st.dataframe(individual_player, use_container_width=True)
 
     # if st.button(f"View {selected_player}'s stats"):
     # tm_title = f"{selected_team} Average"
@@ -180,27 +199,8 @@ with tab5:
     player_plot.legend_.remove()
     st.pyplot()
 
+# TODO: implement function to compare team stats and print if it was better, average or worse than the NFL's averages.
 
-with tab1:
-    st.markdown("""
-    ## About this section
-    The main usage for the _Rushing_ section is to better understand and analyze the rushing statistics the players had during a season.
-
-    It can be a past season or a current season.
-
-    ## About the data
-    Some players have been in multiple teams throughout a season, that's why you may find some team names such as __2TM__.
-
-    At the moment, the data from these players will be managed as if they had belonged to a team named "__2TM__" or whichever amount of teams they've been at in a single season.
-
-    ## How can I (as a user) filter the data?
-    It's pretty easy, in the sidebar you'll find a section titled _Sort data_ in there you'll have the following options to filter the data:
-    - Season
-        - The seasons range from 1980 to the current season (2022).
-    - Team 
-    - Position
-    - Player age
-    """)
 
 # Graphs
 # if st.button('View ')
