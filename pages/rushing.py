@@ -19,8 +19,6 @@ season_to_analyze = st.sidebar.selectbox(
 # Web scraping data
 # Taken from the site:
 # https://www.pro-football-reference.com/years/2022/rushing.htm
-
-
 @st.cache
 def data_scrape(year):
     # Define the URL that's going to be used to search for the data.
@@ -74,36 +72,6 @@ st.write('Data Dimension: ' + str(df_selected_team.shape[0]) + ' rows and ' + st
 st.dataframe(df_selected_team)
 st.markdown(download_csv(df_selected_team), unsafe_allow_html=True)
 
-# @st.cache
-# def get_averages(player_df):
-#     col_names = player_df.columns
-#     avg_cls = []
-#     for i in col_names:
-#         if i == 'Tm':
-#             avg_cls.append(i)
-#         else:
-#             col = i + "_Avg"
-#             avg_cls.append(col)
-#     average_df = pd.DataFrame(columns=avg_cls)
-#     # average_df.drop(labels=["Player_Avg","Pos_Avg"], inplace=True, axis=1)
-
-#     team_list = list(player_df['Tm'].unique())
-#     average_df['Tm'] = team_list
-
-#     average_df.sort_values(by=['Tm'], inplace=True, ignore_index=True)
-
-#     temp_df_team = pd.DataFrame(columns=average_df.columns)
-
-#     for i in team_list:
-#         temp_df_team = player_df.loc[player_df['Tm'] == i]
-#         temp_df_team['Age', ''].mean()
-#         average_df.append(temp_df_team)
-
-#     # average_df['Age_Avg']
-#     # temp_df_team.drop(labels=['Player',"Pos"], inplace=True, axis=1)
-
-#     return temp_df_team
-
 
 def league_avg(player_df):
     temp_df = pd.DataFrame(columns=player_df.columns)
@@ -114,6 +82,18 @@ def league_avg(player_df):
     return temp_df
 
 # average_stats = get_averages(player_stats)
+
+def team_avg(player_df, team):
+    temp_df = pd.DataFrame(columns=player_df.columns)
+
+    temp_tm_df = pd.DataFrame(columns=player_df.columns)
+    temp_tm_df = player_df.loc[player_df['Tm'] == team]
+    temp_series = temp_tm_df.mean()
+
+    temp_df = temp_df.append(temp_series, ignore_index=True)
+    temp_df.drop(labels=["Player","Tm","Pos"], inplace=True, axis=1)
+
+    return temp_df
 
 
 average_league_stats = league_avg(player_stats)
@@ -132,36 +112,30 @@ if st.button("View League bargraph"):
     sns.barplot(data=average_league_stats).set(title="League Average")
     st.pyplot()
 
-st.markdown(f"### Average statistics for _team_")
-st.dataframe(average_league_stats)
 
-if st.button("View team bargraph"):
-    st.markdown("#### _team_")
-    # average_league_stats.to_csv('output.csv', index=False)
-    # df=pd.read_csv('output.csv')
-    plt.figure()
-    sns.barplot(data=average_league_stats).set(title="League Average")
-    st.pyplot()
+st.markdown("### Which team would you like to visualize?")
 
-st.markdown('### What the headers mean')
-st.markdown("""
-In the table, you can clearly see the following headers being established and used, these mean the following:
-* Player - Player's name
-* Tm - Current team
-    * If the player has been on multiple teams in a season, it's being marked as '2TM'
-* Age - Player's age
-* Pos - Position they play in.
-* G - Games played
-* GS - Games started (as defensive or offensive).
-* Att - Rushing attempts
-* Yds - Rushing yards gained
-* TD - Rushing Touchdowns
-* 1D - First Down rushing
-* Lng - Longest rushing attempt
-* Y/A - Rushing yards per attempt
-* Y/G - Rushing Yards per game
-* Fmb - Number of times fumbled
-""")
+raw_team_list = list(player_stats['Tm'].unique())
+team_list = sorted(raw_team_list)
+
+selected_team = st.selectbox(
+    "Select a team from the box:",
+    team_list
+)
+
+avg_team_stats = team_avg(player_stats, team=selected_team)
+
+st.markdown(f"### Average statistics for {selected_team}")
+st.dataframe(avg_team_stats)
+
+# if st.button("View team bargraph"):
+tm_title = f"{selected_team} Average"
+st.markdown(f"#### Viewing stats for {selected_team}")
+# average_league_stats.to_csv('output.csv', index=False)
+# df=pd.read_csv('output.csv')
+plt.figure()
+sns.barplot(data=avg_team_stats).set(title=tm_title)
+st.pyplot()
 
 # Graphs
 # if st.button('View ')
