@@ -12,11 +12,14 @@ st.sidebar.subheader("Sort data")
 season_to_analyze = st.sidebar.selectbox(
     'Season', reversed(list(range(1980, 2023))))
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs(['About','General stats','NFL Average','Team Average','Player Analysis'])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(
+    ['About', 'General stats', 'NFL Average', 'Team Average', 'Player Analysis'])
 
 # Web scraping data
 # Taken from the site:
 # https://www.pro-football-reference.com/years/2022/rushing.htm
+
+
 @st.cache
 def data_scrape(year: int):
     # Define the URL that's going to be used to search for the data.
@@ -63,6 +66,7 @@ def download_csv(team_df):
     href = f'<a href="data:file/csv;base64,{b64}" download="player_stats.csv">Download CSV File</a>'
     return href
 
+
 def league_avg(player_df):
     temp_df = pd.DataFrame(columns=player_df.columns)
     temp_series = player_df.mean()
@@ -98,10 +102,32 @@ def player_information(player_df, player_name):
     return temp_df
 
 
-average_league_stats = league_avg(player_stats)
+def second_tm_avg(player_df, team):
+    temp_df = pd.DataFrame(columns=player_df.columns)
+
+    temp_tm_df = pd.DataFrame(columns=player_df.columns)
+    temp_tm_df = player_df.loc[player_df['Tm'] == team]
+    temp_series = temp_tm_df.mean()
+
+    temp_df = temp_df.append(temp_series, ignore_index=True)
+    temp_df.drop(labels=["Player", "Tm", "Pos"], inplace=True, axis=1)
+
+    return temp_df
+
+
+def compare_tms_df(team_df_1, team_df_2, team1_nm, team2_nm):
+    team_comp_df = pd.DataFrame(columns=team_df_1.columns)
+    team_comp_df = team_comp_df.append(team_df_1, ignore_index=True)
+    team_comp_df["Tm"] = team1_nm
+
+    team_comp_df = team_comp_df.append(team_df_2, ignore_index=True)
+    team_comp_df["Tm"] = team2_nm
+
+    return team_comp_df
 
 # st.markdown("### Average statistics per team")
 # st.dataframe(average_stats)
+
 
 with tab1:
     st.markdown("""
@@ -134,14 +160,15 @@ with tab2:
 
 with tab3:
     # League average
+    average_league_stats = league_avg(player_stats)
+
     st.markdown(
         f"### Average statistics for the entire NFL in the {season_to_analyze} season")
+
     st.dataframe(average_league_stats, use_container_width=True)
 
-    # if st.button("View League bargraph"):
     st.markdown("#### Graph of the NFL")
-    # average_league_stats.to_csv('output.csv', index=False)
-    # df=pd.read_csv('output.csv')
+
     plot_title = f"Leage Avg. for the {season_to_analyze} season"
     plt.figure()
     sns.barplot(data=average_league_stats).set(title=plot_title)
@@ -164,13 +191,46 @@ with tab4:
     st.markdown(f"#### Average statistics for {selected_team}")
     st.dataframe(avg_team_stats, use_container_width=True)
 
-    if st.button("View team bargraph"):
-        tm_title = f"{selected_team} Average"
-        st.markdown(f"#### Viewing stats for {selected_team}")
+    # if st.button(f"View {} bargraph"):
+    tm_title = f"{selected_team} Average"
+    st.markdown(f"#### Viewing stats for {selected_team}")
+
+    plt.figure()
+    sns.barplot(data=avg_team_stats).set(title=tm_title)
+    st.pyplot()
+
+    st.markdown(
+        f"If you want to compare another team with {selected_team}, select one from below")
+
+    selected_2nd_team = st.selectbox(
+        "Select the second team:",
+        team_list
+    )
+
+    avg_2team_stats = team_avg(player_stats, selected_2nd_team)
+
+    two_teams_df = compare_tms_df(
+        avg_team_stats, avg_2team_stats, team1_nm=selected_team, team2_nm=selected_2nd_team)
+
+    with st.expander(f"Comparing {selected_team} with {selected_2nd_team}"):
+        st.dataframe(two_teams_df, use_container_width=True)
+
+        tm_vs_tm2 = f"{selected_team} vs. {selected_2nd_team}"
 
         plt.figure()
-        sns.barplot(data=avg_team_stats).set(title=tm_title)
+        team_2_plt = sns.barplot(data=avg_2team_stats).set(title=tm_vs_tm2)
+        team_1_plt = sns.scatterplot(data=avg_team_stats.transpose())
         st.pyplot()
+
+    with st.expander(f"See how {selected_team} compares with the NFL"):
+        tm_vs_nfl = f"{selected_team} vs. NFL"
+        plt.figure()
+        league_plot = sns.barplot(
+            data=average_league_stats).set(title=tm_vs_nfl)
+        tm_plot = sns.scatterplot(data=avg_team_stats.transpose())
+        # tm_plot.legend_.remove()
+        st.pyplot()
+
 
 with tab5:
     # Player visualizations
@@ -194,7 +254,7 @@ with tab5:
     graph_title = f"Stats for {selected_player} compared with the NFL"
 
     plt.figure()
-    leage_plot = sns.barplot(data=average_league_stats).set(title=graph_title)
+    league_plot = sns.barplot(data=average_league_stats).set(title=graph_title)
     player_plot = sns.scatterplot(data=individual_player.transpose())
     player_plot.legend_.remove()
     st.pyplot()
