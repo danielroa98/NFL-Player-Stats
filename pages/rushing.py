@@ -193,11 +193,11 @@ with tab2:
             
             temp_df = player_stats.loc[player_stats["Pos"] == i]
             st.dataframe(temp_df)
-            temp_df_max = temp_df.iloc[player_stats["Yds"].idxmax()]
+            # temp_df_max = temp_df.iloc[player_stats["Yds"].idxmax()]
 
             if i != 0:
                 st.markdown(f"Best {i} is: ")
-                st.dataframe(temp_df_max, use_container_width=True)
+                # st.dataframe(temp_df_max, use_container_width=True)
             # st.markdown(f"The best {i} is {player_stats.loc[player_stats['Pos'] == i]}")
 
 
