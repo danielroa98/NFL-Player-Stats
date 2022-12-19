@@ -47,8 +47,8 @@ def main_page():
 
 
 def rushing():
-    st.markdown("# Rushing stats")
-    st.sidebar.markdown("# Rushing stats")
+    st.markdown("# Rushing")
+    st.sidebar.markdown("# Rushing")
 
     tab1, tab2 = st.tabs(["What does _Rushing_ mean?", "Definitions"])
 
@@ -83,13 +83,13 @@ def rushing():
 
 
 def passing():
-    st.markdown("# Passing stats")
-    st.sidebar.markdown("# Passing stats")
+    st.markdown("# Passing")
+    st.sidebar.markdown("# Passing")
 
 
 def receiving():
-    st.markdown("# Receiving stats")
-    st.sidebar.markdown("# Receiving stats")
+    st.markdown("# Receiving")
+    st.sidebar.markdown("# Receiving")
 
 
 names_to_funcs = {
