@@ -22,7 +22,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(
 # https://www.pro-football-reference.com/years/2022/rushing.htm
 
 
-@st.cache
+@st.cache(allow_output_mutation=True)
 def data_scrape(year: int):
     # Define the URL that's going to be used to search for the data.
     url = "https://www.pro-football-reference.com/years/" + \
@@ -37,8 +37,11 @@ def data_scrape(year: int):
         "Age", "G", "GS", "Att", "Yds", "TD", "1D", "Lng", "Y/A", "Y/G", "Fmb"]].apply(pd.to_numeric)
 
     rushing_players.reset_index(drop=True, inplace=True)
-    
+
+    rushing_players.loc[rushing_players['Pos'] == 0, ['Pos']] = "No Pos"
+
     return rushing_players
+
 
 player_stats = data_scrape(season_to_analyze)
 # st.dataframe(player_stats)
@@ -62,6 +65,7 @@ age_filter = st.sidebar.multiselect(
 # Data filtering
 df_selected_team = player_stats[(player_stats['Tm'].isin(select_team)) & (
     player_stats['Pos'].isin(select_pos)) & (player_stats['Age'].isin(age_filter))]
+
 
 def download_csv(team_df):
     csv = team_df.to_csv(index=False)
@@ -127,12 +131,37 @@ def compare_tms_df(team_df_1, team_df_2, team1_nm, team2_nm):
 
     team_comp_df.insert(loc=0, column="Tm", value=[[team1_nm, team2_nm]])
 
-    team_comp_df.at[0,'Tm'] = team1_nm
+    team_comp_df.at[0, 'Tm'] = team1_nm
 
     team_comp_df = team_comp_df.append(team_df_2, ignore_index=True)
     team_comp_df.at[1, 'Tm'] = team2_nm
 
     return team_comp_df
+
+def compare_players_df(player_1_data, player_2_data, player_1_name, player_2_name):
+    player_comp_df = pd.DataFrame(columns=player_1_data.columns)
+    player_comp_df = player_comp_df.append(player_1_data, ignore_index=True)
+
+    player_comp_df.insert(loc=0, column="Player", value=[[player_1_name, player_2_name]])
+
+    player_comp_df.at[0, "Player"] = player_1_name
+
+    player_comp_df = player_comp_df.append(player_2_data, ignore_index=True)
+
+    player_comp_df.at[1, "Player"] = player_2_name
+
+    return player_comp_df
+
+# def best_players_yds(player_df:pd.DataFrame):
+#     temp_df = pd.DataFrame(columns=player_df.columns)
+#     positions = list(player_df["Pos"].unique())
+
+#     for i in positions:
+#         pos_df = player_df[player_df["Pos"] == i]
+        
+#         # temp_df.append(temp, ignore_index=True)
+
+#         return pos_df
 
 # st.markdown("### Average statistics per team")
 # st.dataframe(average_stats)
@@ -167,7 +196,7 @@ with tab2:
     st.markdown(download_csv(df_selected_team), unsafe_allow_html=True)
     # st.markdown("""
     # ### Overall player stats
-     
+
     # ```
     # Work in progress
 
@@ -176,30 +205,43 @@ with tab2:
 
     # Any suggestions will be more than appreciated.
     # """)
-    avg_t1,avg_t2 = st.tabs(["Best player","Best player per position"])
+    avg_t1, avg_t2 = st.tabs(["Best player", "Best player per position"])
     with avg_t1:
         st.markdown("#### The overall leading player in Rushing is")
         best_player_yds = player_stats.iloc[player_stats["Yds"].idxmax()]
         player_name = best_player_yds['Player']
         player_yds_stat = best_player_yds['Yds']
-        st.markdown(f"{player_name} with {player_yds_stat} _Rushing yards gained_")
+        st.markdown(
+            f"{player_name} with {player_yds_stat} _Rushing yards gained_")
         st.dataframe(best_player_yds, use_container_width=True)
+        today = datetime.now()
+        today_frmt = today.strftime("%d/%m/%Y at %H:%M")
+        st.markdown(f"This was updated in real time, so it means it updates at the same time as you view the data, just check the time 🗓️ {today_frmt}.")
 
     with avg_t2:
-        st.markdown("#### Best player by position")
+        st.markdown("""
+        #### Best player by position
+        
+        Work in progress
+
+        """)
+        # test = best_players_yds(player_stats)
+        
+        # st.dataframe(test)
+
         pos_lst = player_stats["Pos"].unique()
 
-        for i in pos_lst:
-            
-            temp_df = player_stats.loc[player_stats["Pos"] == i]
-            st.dataframe(temp_df)
-            # temp_df_max = temp_df.iloc[player_stats["Yds"].idxmax()]
+        # st.markdown(pos_lst)
 
-            if i != 0:
-                st.markdown(f"Best {i} is: ")
-                # st.dataframe(temp_df_max, use_container_width=True)
-            # st.markdown(f"The best {i} is {player_stats.loc[player_stats['Pos'] == i]}")
+        # for i in pos_lst:
 
+        #     temp_df = player_stats.loc[player_stats["Pos"] == i]
+        #     # st.dataframe(temp_df)
+        #     temp_df_max = temp_df.iloc[player_stats["Yds"].idxmax()]
+
+        #     st.markdown(f"Best {i} is: ")
+        #     st.dataframe(temp_df_max, use_container_width=True)
+        #     # st.markdown(f"The best {i} is {player_stats.loc[player_stats['Pos'] == i]}")
 
 
 with tab3:
@@ -266,12 +308,14 @@ with tab4:
         team_1_plt = sns.scatterplot(data=avg_team_stats.transpose())
         st.pyplot()
 
-        st.markdown(f"The scatter plot belongs to {selected_team} and the bar plot belongs to {selected_2nd_team}.")
+        st.markdown(
+            f"The scatter plot belongs to {selected_team} and the bar plot belongs to {selected_2nd_team}.")
 
     with st.expander(f"See how {selected_team} compares with the NFL in the {season_to_analyze} season"):
         tm_vs_nfl = f"{selected_team} vs. NFL"
         plt.figure()
-        league_plot = sns.barplot(data=average_league_stats).set(title=tm_vs_nfl)
+        league_plot = sns.barplot(
+            data=average_league_stats).set(title=tm_vs_nfl)
         tm_plot = sns.scatterplot(data=avg_team_stats.transpose())
         st.pyplot()
 
@@ -293,19 +337,62 @@ with tab5:
 
     with st.expander(f"View the stats of {selected_player} vs the NFL in the {season_to_analyze} season"):
         st.markdown(f"The stats for the NFL in the {season_to_analyze} are:")
-        st.dataframe(average_league_stats, use_container_width=True )
+        st.dataframe(average_league_stats, use_container_width=True)
 
         # if st.button(f"View {selected_player}'s stats"):
         # tm_title = f"{selected_team} Average"
-        st.markdown(f"#### Viewing stats for {selected_player} against the NFL")
+        st.markdown(
+            f"#### Viewing stats for {selected_player} against the NFL")
 
         graph_title = f"Stats for {selected_player} compared with the NFL"
 
         plt.figure()
-        league_plot = sns.barplot(data=average_league_stats).set(title=graph_title)
+        league_plot = sns.barplot(
+            data=average_league_stats).set(title=graph_title)
         player_plot = sns.scatterplot(data=individual_player.transpose())
         player_plot.legend_.remove()
         st.pyplot()
+    
+    with st.expander(f"View how {selected_player} compares against another player"):
+        second_player = st.selectbox("Select another player", player_list)
+
+        player_2_cmpr = player_information(player_df=player_stats, player_name=second_player)
+
+        p1_vs_p2 = compare_players_df(player_1_data=individual_player, player_2_data=player_2_cmpr, player_1_name=selected_player, player_2_name=second_player)
+
+        st.dataframe(p1_vs_p2, use_container_width=True)
+
+        p_v_p_title = f"{selected_player} vs. {second_player}"
+
+        plt.figure()
+        player_comp_plot = sns.barplot(data=player_2_cmpr).set(title=p_v_p_title)
+        main_player_plot = sns.scatterplot(data=individual_player.transpose())
+        st.pyplot()
+        st.caption(f"""
+        The scatterplot contains {selected_player}'s stats, meanwhile the bargraph contains {second_player}'s stats.
+        """)
+
+    with st.expander(f"View how {selected_player} compares against another team"):
+        raw_team_list = list(player_stats['Tm'].unique())
+        team_list = sorted(raw_team_list)
+
+        selected_team = st.selectbox("Select a team:", team_list)
+
+        avg_team_stats = team_avg(player_stats, team=selected_team)
+        
+        st.markdown(f"{selected_team}'s statistics for the {season_to_analyze} season")
+        st.dataframe(avg_team_stats, use_container_width=True)
+
+        p_v_t_title = f"{selected_player} compared against {selected_team}"
+
+        plt.figure()
+        team_plot = sns.barplot(data=avg_team_stats).set(title=p_v_t_title)
+        player_plot = sns.scatterplot(data=individual_player.transpose())
+        st.pyplot()
+        st.caption(f""" 
+        The scatterplot contains {selected_player}'s stats, meanwhile the bargraph contains {selected_team}'s stats.
+        """)
+
 
 # TODO: implement function to compare team stats and print if it was better, average or worse than the NFL's averages.
 
