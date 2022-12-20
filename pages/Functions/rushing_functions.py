@@ -1,6 +1,6 @@
 import pandas as pd
 
-def data_scrape(year):
+def data_scrape(year:int,):
     """ Function data_scrape
         -----
         Receives:
@@ -12,7 +12,8 @@ def data_scrape(year):
         * rushing_player: Pandas DataFrame containing the information from a 
      """
     # Define the URL that's going to be used to search for the data.
-    url = "https://www.pro-football-reference.com/years/"+str(year)+"/rushing.htm"
+    url = "https://www.pro-football-reference.com/years/" + \
+        str(year)+"/rushing.htm"
     # Set the reading for the table found in the site established before.
     html = pd.read_html(url, header=1)
     rushing_df = html[0]
@@ -21,4 +22,9 @@ def data_scrape(year):
     rushing_players = clean_data.drop(['Rk'], axis=1)
     rushing_players[["Age", "G", "GS", "Att", "Yds", "TD", "1D", "Lng", "Y/A", "Y/G", "Fmb"]] = rushing_players[[
         "Age", "G", "GS", "Att", "Yds", "TD", "1D", "Lng", "Y/A", "Y/G", "Fmb"]].apply(pd.to_numeric)
+
+    rushing_players.reset_index(drop=True, inplace=True)
+
+    rushing_players.loc[rushing_players['Pos'] == 0, ['Pos']] = "No Pos"
+
     return rushing_players
