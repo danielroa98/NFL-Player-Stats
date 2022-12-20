@@ -10,9 +10,13 @@ from datetime import datetime
 st.markdown("# Rushing")
 st.sidebar.markdown("# Rushing")
 
-st.sidebar.subheader("Sort data")
+st.sidebar.markdown("Select a season to analyze")
+
 season_to_analyze = st.sidebar.selectbox(
     'Season', reversed(list(range(1980, 2023))))
+
+st.sidebar.subheader("Sorting data")
+
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs(
     ['About', 'General stats', 'NFL Average', 'Team Average', 'Player Analysis'])
@@ -20,8 +24,6 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(
 # Web scraping data
 # Taken from the site:
 # https://www.pro-football-reference.com/years/2022/rushing.htm
-
-
 @st.cache(allow_output_mutation=True)
 def data_scrape(year: int):
     # Define the URL that's going to be used to search for the data.
