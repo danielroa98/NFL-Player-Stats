@@ -23,7 +23,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(
 
 # Web scraping data
 # Taken from the site:
-# https://www.pro-football-reference.com/years/2022/rushing.htm
+# https://www.pro-football-reference.com/years/{season}/rushing.htm
 @st.cache(allow_output_mutation=True)
 def data_scrape(year: int):
     # Define the URL that's going to be used to search for the data.

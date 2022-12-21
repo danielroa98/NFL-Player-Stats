@@ -84,16 +84,29 @@ def rushing():
 
 def passing():
     st.markdown("# Passing")
+    st.markdown("""
+        WORK IN PROGRESS
+    """)
     st.sidebar.markdown("# Passing")
 
 
 def receiving():
     st.markdown("# Receiving")
+    st.markdown("""
+        WORK IN PROGRESS
+    """)
     st.sidebar.markdown("# Receiving")
 
+def fantasy():
+    st.markdown("# Fantasy")
+    st.markdown("""
+        WORK IN PROGRESS
+    """)
+    st.sidebar.markdown("# Fantasy")
 
 names_to_funcs = {
     "Main Page": main_page,
+    "Fantasy": fantasy,
     "Passing": passing,
     "Receiving": receiving,
     "Rushing": rushing,
