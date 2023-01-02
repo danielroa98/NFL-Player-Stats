@@ -8,6 +8,18 @@ Project meant to analyze player's statistics from different seasons.
 
 ## Current developments
 
+### Fantasy
+
+`Work in progress`
+
+### Passing
+
+`Pending to explain`
+
+### Receiving
+
+`Work in progress`
+
 ### Rushing
 
 - Implement team selection to check for a team's mean in the stats mentioned.
@@ -17,3 +29,8 @@ Project meant to analyze player's statistics from different seasons.
 ## Live updates
 
 If you want to see the way the dashboard is looking at the moment, click [here](https://nfl-player-stats.streamlit.app/) and you'll be redirected to the main page of the Streamlit dashboard.
+
+## Pending implementations
+
+- [ ] Start working on _Receiving_.
+- [ ] Start working on a proof of concept for _Fantasy_.
