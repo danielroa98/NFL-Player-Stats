@@ -1,8 +1,9 @@
 # NFL-Player-Stats
 
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
-[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
+![GPL-3.0 license](https://img.shields.io/github/license/danielroa98/NFL-Player-Stats)
 [![Website shields.io](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://nfl-player-stats.streamlit.app/)
+![repo size](https://img.shields.io/github/repo-size/danielroa98/NFL-Player-Stats?label=Repo%20Size)
 
 Project meant to analyze player's statistics from different seasons.
 
