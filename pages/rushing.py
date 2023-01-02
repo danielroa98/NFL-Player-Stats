@@ -42,6 +42,8 @@ def data_scrape(year: int):
 
     rushing_players.loc[rushing_players['Pos'] == 0, ['Pos']] = "No Pos"
 
+    rushing_players["Player"]=rushing_players["Player"].map(lambda x: x.rstrip('*+'))
+
     return rushing_players
 
 
@@ -207,18 +209,20 @@ with tab2:
 
     # Any suggestions will be more than appreciated.
     # """)
-    avg_t1, avg_t2 = st.tabs(["Best player", "Best player per position"])
+    avg_t1, avg_t2 = st.tabs(["Best player", "Best player by position"])
     with avg_t1:
         st.markdown("#### The overall leading player in Rushing is")
+
         best_player_yds = player_stats.iloc[player_stats["Yds"].idxmax()]
         player_name = best_player_yds['Player']
         player_yds_stat = best_player_yds['Yds']
-        st.markdown(
-            f"{player_name} with {player_yds_stat} _Rushing yards gained_")
+
+        st.markdown(f"{player_name} with {player_yds_stat} _Rushing yards gained_")
         st.dataframe(best_player_yds, use_container_width=True)
+
         today = datetime.now()
-        today_frmt = today.strftime("%d/%m/%Y at %H:%M")
-        st.markdown(f"This was updated in real time, so it means it updates at the same time as you view the data, just check the time 🗓️ {today_frmt}.")
+        today_frmt = today.strftime("%d/%m/%Y")
+        st.markdown(f"This was updated in real time, so it means it updates at the same time as you view the data, just check the date 🗓️ {today_frmt}.")
 
     with avg_t2:
         st.markdown("""
@@ -250,14 +254,13 @@ with tab3:
     # League average
     average_league_stats = league_avg(player_stats)
 
-    st.markdown(
-        f"### Average statistics for the entire NFL in the {season_to_analyze} season")
+    st.markdown(f"### Average statistics for the entire NFL in the {season_to_analyze} season for _Rushing_")
 
     st.dataframe(average_league_stats, use_container_width=True)
 
     st.markdown(f"#### Graph of the NFL in the {season_to_analyze} season")
 
-    plot_title = f"Leage Avgs. for the {season_to_analyze} season"
+    plot_title = f"League Avgs. for the {season_to_analyze} season"
     plt.figure()
     sns.barplot(data=average_league_stats).set(title=plot_title)
     st.pyplot()

@@ -69,16 +69,124 @@ sort_player_ages = sorted(player_stats['Age'].unique())
 age_filter = st.sidebar.multiselect('Player age', sort_player_ages, sort_player_ages)
 
 # Applying the data filter
-df_selected_team = player_stats[(player_stats['Tm'].isin(selected_team)) & (player_stats['Pos'].isin(selected_pos)) & (player_stats['Age'].isin(age_filter))]
+filtered_df = player_stats[(player_stats['Tm'].isin(selected_team)) & (player_stats['Pos'].isin(selected_pos)) & (player_stats['Age'].isin(age_filter))]
 
 # Function definitions
+def league_avg(player_df:pd.DataFrame):
+    temp_df = pd.DataFrame(columns=player_df.columns)
+    temp_series = player_df.mean()
 
+    temp_df = temp_df.append(temp_series, ignore_index=True)
+    temp_df.drop(labels=["Player", "Tm", "Pos", "QBrec"], inplace=True, axis=1)
+    return temp_df
+
+
+def team_avg(player_df, team):
+    temp_df = pd.DataFrame(columns=player_df.columns)
+
+    temp_tm_df = pd.DataFrame(columns=player_df.columns)
+    temp_tm_df = player_df.loc[player_df['Tm'] == team]
+    temp_series = temp_tm_df.mean()
+
+    temp_df = temp_df.append(temp_series, ignore_index=True)
+    temp_df.drop(labels=["Player", "Tm", "Pos", "QBrec"], inplace=True, axis=1)
+
+    return temp_df
 
 # Tabs
 # About
 with tab1:
     st.markdown("""
-    ## Placeholder
+    ## About this section
 
-    Doggo ipsum doing me a frighten long woofer blep what a nice floof very good spot pats, sub woofer shoober bork. Lotsa pats woofer snoot pats I am bekom fat h*ck, maximum borkdrive aqua doggo very hand that feed shibe. Big ol you are doin me a concern the neighborhood pupper much ruin diet adorable doggo, aqua doggo such treat tungg long doggo waggy wags, heckin good boys and girls thicc blop. Most angery pupper I have ever seen wow very biscit ruff puggo sub woofer, heckin angery woofer he made many woofs.
+    The main usage for the _Passing_ section is to better understand and analyze passing statistics players had during a season.
+
+    Just as the other sections, it may be from a past or current season.
+
+    ## About the data
+
+    ## How can I filter the data?
+
+    As far as _Passing_ goes, it uses the same parameters as the other sections, you can filter by the following attributes:
+    * Season
+        * The seasons range from 1980 to the current season.
+            * As an additional note, __
+
     """)
+
+# General stats
+with tab2:
+    st.markdown("### Displaying player stats with the selected filters")
+    st.dataframe(filtered_df)
+
+    avg_t1,avg_t2,avg_t3 = st.tabs(["Best player in _Passing_", "Best player by position", '"Worst" player in _Passing_'])
+
+    with avg_t1:
+        st.markdown("### Player with the most _Yards Gained by Passing_")
+
+        # Best player regarding the yards gained
+        best_player_yds = player_stats.iloc[player_stats["Yds"].idxmax()]
+        player_name = best_player_yds["Player"]
+        player_yds = best_player_yds["Yds"]
+
+        st.markdown(f"The best player is __{player_name}__ with __{player_yds}__ _Yards Gained by Passing_")
+        st.dataframe(best_player_yds, use_container_width=True)
+
+        today = datetime.now()
+        today_frmt = today.strftime("%d/%m/%Y")
+        st.markdown(f"This was updated in real time, so it means it updates at the same time as you view the data, just check the date 🗓️ {today_frmt}.")
+
+    with avg_t2:
+        st.markdown(""" 
+        ### Best player by position
+        
+        Work in progress
+        """)
+        
+
+    with avg_t3:
+        st.markdown('''
+        ### "Worst" player in passing
+        
+        Work in progress
+        ''')
+
+# NFL average
+with tab3:
+    avg_nfl_stats = league_avg(player_df=player_stats)
+
+    st.markdown(f"### Passing average in the NFL in the {season_to_analyze} season")
+
+    st.dataframe(avg_nfl_stats, use_container_width=True)
+
+    st.markdown(f"#### Graph of the NFL in the {season_to_analyze} season")
+
+    plot_title = f"League stats for the {season_to_analyze} season"
+    plt.figure()
+    sns.set(rc={'figure.figsize':(20,12)})
+    ax = sns.barplot(data=avg_nfl_stats).set(title=plot_title)
+    st.pyplot()
+
+# Team averages
+with tab4:
+    st.markdown("### Select a team you'd like to visualize")
+
+    raw_team_list = list(player_stats["Tm"].unique())
+    team_lst = sorted(raw_team_list)
+
+    selected_team = st.selectbox("Select a team from the box:",team_lst)
+
+    avg_tm_stats = team_avg(player_df=player_stats, team=selected_team)
+
+    st.markdown(f"#### Average statistics for {selected_team}")
+    st.dataframe(avg_tm_stats)
+
+    tm_title = f"{selected_team} average"
+
+    st.markdown(f"#### Viewing stats for {selected_team}")
+    plt.figure()
+    sns.barplot(data=avg_tm_stats).set(title=tm_title)
+    st.pyplot()
+
+# Warning removal
+st.set_option('deprecation.showPyplotGlobalUse', False)
