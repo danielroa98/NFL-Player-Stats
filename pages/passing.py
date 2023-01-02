@@ -15,7 +15,7 @@ st.sidebar.markdown("Select a season to analyze")
 
 # Get the current season's year + 1
 date = datetime.now()
-latest_season = int(date.strftime("%Y")) + 1
+latest_season = int(date.strftime("%Y"))
 
 # Selecting a season to analyze
 season_to_analyze = st.sidebar.selectbox('Season', reversed(list(range(1980, latest_season))))
