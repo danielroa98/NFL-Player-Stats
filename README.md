@@ -33,5 +33,6 @@ If you want to see the way the dashboard is looking at the moment, click [here](
 
 ## Pending implementations
 
+- [ ] Keep working on _Passing_.
 - [ ] Start working on _Receiving_.
 - [ ] Start working on a proof of concept for _Fantasy_.
