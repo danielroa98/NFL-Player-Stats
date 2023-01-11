@@ -203,12 +203,15 @@ with tab4:
     with col2:
         st.markdown(f"Information about {selected_team}")
         st.markdown(f"""
-            - Age average: {avg_tm_stats["Age"]}
-            - Average games played: {avg_tm_stats["G"]}
-            - Average yards: {avg_tm_stats["Yds"]}
-        """)
-        st.table(avg_tm_stats)
+            Work in progress
 
+            `Will move the relevant data from below up to here`
+        """)
+            # - Age average: {avg_tm_stats["Age"][0]}
+            # - Average games played: {avg_tm_stats["G"]}
+            # - Average yards: {avg_tm_stats["Yds"]}
+
+    st.dataframe(avg_tm_stats)
     st.markdown("----")
 
     st.markdown(f"#### Additional information for {selected_team}")
