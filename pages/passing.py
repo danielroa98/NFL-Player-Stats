@@ -21,8 +21,17 @@ latest_season = int(date.strftime("%Y"))
 # check_season_yr = 
 
 # Selecting a season to analyze
-season_to_analyze = st.sidebar.selectbox(
-    'Season', reversed(list(range(1980, latest_season))))
+season_to_analyze = st.sidebar.selectbox('Season', reversed(list(range(1980, latest_season))))
+
+st.sidebar.subheader("Select the amount of data you want to see")
+dataframe_info = st.sidebar.radio(
+    "Data to display",
+    ('All data','Basic')
+)
+
+st.sidebar.markdown("""
+    - If you choose  _Basic_, then you'll only see columns with basic information.
+""")
 
 st.sidebar.subheader("Sorting data")
 
@@ -58,6 +67,9 @@ def data_scrape(year: int):
 
     passing_players["Player"] = passing_players["Player"].map(lambda x: x.rstrip('*+'))
 
+    passing_players.sort_values(by="Yds", inplace=True, ascending=False)
+    passing_players.reset_index(drop=True, inplace=True)
+
     return passing_players
 
 
@@ -76,11 +88,13 @@ selected_pos = st.sidebar.multiselect("Position", unique_pos, unique_pos)
 # Age filtering
 sort_player_ages = sorted(player_stats['Age'].unique())
 age_filter = st.sidebar.multiselect(
-    'Player age', sort_player_ages, sort_player_ages)
+    'Player age range', sort_player_ages, sort_player_ages)
 
-# Applying the data filter
-filtered_df = player_stats[(player_stats['Tm'].isin(selected_team)) & (
-    player_stats['Pos'].isin(selected_pos)) & (player_stats['Age'].isin(age_filter))]
+# Work in progress
+youngest_player = int(player_stats["Age"].min()) - 1
+oldest_player = int(player_stats["Age"].max()) + 1
+
+# age_filter_slider = st.sidebar.slider("Player age range (experimental)", min_value=youngest_player, max_value=oldest_player)
 
 # Function definitions
 def league_avg(player_df: pd.DataFrame):
@@ -116,6 +130,14 @@ def player_information(player_df, player_name):
 
     return temp_df
 
+def simplify_df(filtered_df):
+    return "Hello"
+
+if dataframe_info == "All data":
+    filtered_df = player_stats[(player_stats['Tm'].isin(selected_team)) & (
+        player_stats['Pos'].isin(selected_pos)) & (player_stats['Age'].isin(age_filter))]
+elif dataframe_info == "Basic":
+    general_data = "basic"
 
 # Tabs
 # About
@@ -134,15 +156,12 @@ with tab1:
     As far as _Passing_ goes, it uses the same parameters as the other sections, you can filter by the following attributes:
     * Season
         * The seasons range from 1980 to the current season.
-            * As an additional note, __
 
     """)
 
 # General stats
 with tab2:
-
     st.markdown("## General stats")
-
     st.markdown("### Player with the most _Yards Gained by Passing_")
 
     # Best player regarding the yards gained
@@ -155,13 +174,27 @@ with tab2:
     st.markdown(f"The best player with __Yards Gained by Passing__ is")
     # st.dataframe(best_player_yds, use_container_width=True)
 
-    st.metric(label=f"with {player_yds} yards passed", value=f"{player_name}",
-                delta=f"{player_yds-top_two[1]} yards above second place")
+    st.metric(label=f"with {player_yds} yards passed", value=f"{player_name}", delta=f"{player_yds-top_two[1]} yards above second place")
 
+    tab1, tab2 = st.tabs(["All player", "Best player by position"])
 
+    with tab1:
+
+        st.markdown("### Displaying player stats with the selected filters")
+        st.dataframe(filtered_df)
+        # test_filter = filtered_df.applymap(simple_data_gs, subset=pd.IndexSlice["Age", "G", "GS", "Cmp", "Att", "Cmp%", "Yds", "TD", "TD%", "Int", "Int%", "1D", "Lng", "Y/A", "AY/A", "Y/C", "Y/G", "Rate", "QBR", "Sk", "Yds Lost", "Sk%", "NY/A", "ANY/A", "4QC", "GWD"])
+
+    with tab2:
+        st.markdown("""
+        #### Best player by position
+        
+        Work in progress
+
+        """)
+
+        pos_lst = player_stats["Pos"].unique()
+    
     st.markdown("-----")
-    st.markdown("### Displaying player stats with the selected filters")
-    st.dataframe(filtered_df)
 
     today = datetime.now()
     today_frmt = today.strftime("%d/%m/%Y")
@@ -201,29 +234,32 @@ with tab4:
         avg_tm_stats = team_avg(player_df=player_stats, team=selected_team)
 
     with col2:
-        st.markdown(f"Information about {selected_team}")
+        team_age = round(avg_tm_stats["Age"][0], 2)
+        team_gms_played = round(avg_tm_stats["G"][0], 2)
+        team_yds = round(avg_tm_stats["Yds"][0], 2)
+        # - Average games played: {team_gms_played}
+
         st.markdown(f"""
-            Work in progress
+            Information about {selected_team}:
+            - Age average: {team_age}
+            - Average yards covered: {team_yds}
 
-            `Will move the relevant data from below up to here`
         """)
-            # - Age average: {avg_tm_stats["Age"][0]}
-            # - Average games played: {avg_tm_stats["G"]}
-            # - Average yards: {avg_tm_stats["Yds"]}
-
-    st.dataframe(avg_tm_stats)
     st.markdown("----")
+    with st.container():
+        st.markdown(f"#### Additional information for {selected_team}")
 
-    st.markdown(f"#### Additional information for {selected_team}")
+        with st.expander(f"View {selected_team}'s table"):
+            st.dataframe(avg_tm_stats)
 
-    tm_title = f"{selected_team} average"
+        tm_title = f"{selected_team} average"
 
-    st.markdown("Pending minor fixes in the graph")
+        st.markdown("Pending minor fixes in the graph")
 
-    # st.markdown(f"#### Viewing stats for {selected_team}")
-    # plt.figure()
-    # sns.barplot(data=avg_tm_stats).set(title=tm_title)
-    # st.pyplot()
+        # st.markdown(f"#### Viewing stats for {selected_team}")
+        # plt.figure()
+        # sns.barplot(data=avg_tm_stats).set(title=tm_title)
+        # st.pyplot()
 
 with tab5:
     st.markdown("### Which player would you like to visualize?")

@@ -44,6 +44,9 @@ def data_scrape(year: int):
 
     rushing_players["Player"]=rushing_players["Player"].map(lambda x: x.rstrip('*+'))
 
+    rushing_players.sort_values(by="Yds", inplace=True, ascending=False)
+    rushing_players.reset_index(drop=True, inplace=True)
+
     return rushing_players
 
 
@@ -77,7 +80,7 @@ def download_csv(team_df):
     now = datetime.now()
     date = now.strftime("%d-%m-%Y_at_%H:%M:%S")
     fileName = f"player_stats_{date}.csv"
-    href = f'<a href="data:file/csv;base64,{b64}" download="{fileName}">Download CSV File</a>'
+    href = f'<a href="data:file/csv;base64,{b64}" download="{fileName}">Download as CSV File</a>'
     return href
 
 
@@ -193,37 +196,27 @@ with tab1:
     """)
 
 with tab2:
-    # Data displaying
-    st.markdown("### Displaying player stats with the applied filters")
-    # st.write('There are ' + str(df_selected_team.shape[0]) + ' players and ' + str(df_selected_team.shape[1]) + ' columns.')
-    st.dataframe(df_selected_team, use_container_width=True)
-    st.markdown(download_csv(df_selected_team), unsafe_allow_html=True)
-    # st.markdown("""
-    # ### Overall player stats
+    st.markdown("## General Stats")
+    st.markdown("### Player with the most _Rushing Yards Gained_ is")
+    
+    # Best player regarding yards gained
+    best_player_yds = player_stats.iloc[player_stats["Yds"].idxmax()]
+    player_name = best_player_yds["Player"]
+    player_yds = best_player_yds["Yds"]
 
-    # ```
-    # Work in progress
+    top_two = player_stats["Yds"].nlargest(2)
 
-    # This section will be displaying player stats (such as who in the NFL is better based on Rushing Yards Gained, position, etc...)
-    # ```
 
-    # Any suggestions will be more than appreciated.
-    # """)
-    avg_t1, avg_t2 = st.tabs(["Best player", "Best player by position"])
+    st.metric(label=f"with {player_yds} yards passed", value=f"{player_name}", delta=f"{player_yds-top_two[1]} yards above second place")
+    # st.image("https://static.www.nfl.com/image/private/t_person_squared_mobile/f_auto/league/sagoqkubeaz5yht01ow7", caption=f"Image of {player_name}", width=225)
+
+    avg_t1, avg_t2 = st.tabs(["All players", "Best player by position"])
+
     with avg_t1:
-        st.markdown("#### The overall leading player in Rushing is")
-
-        best_player_yds = player_stats.iloc[player_stats["Yds"].idxmax()]
-        player_name = best_player_yds['Player']
-        player_yds_stat = best_player_yds['Yds']
-
-        st.markdown(f"{player_name} with {player_yds_stat} _Rushing yards gained_")
-        st.dataframe(best_player_yds, use_container_width=True)
-
-        today = datetime.now()
-        today_frmt = today.strftime("%d/%m/%Y")
-        st.markdown(f"This was updated in real time, so it means it updates at the same time as you view the data, just check the date 🗓️ {today_frmt}.")
-
+        st.markdown("#### Displaying all player stats with the applied filters")
+        st.dataframe(df_selected_team, use_container_width=True)
+        st.markdown(download_csv(df_selected_team), unsafe_allow_html=True)
+        
     with avg_t2:
         st.markdown("""
         #### Best player by position
@@ -231,23 +224,13 @@ with tab2:
         Work in progress
 
         """)
-        # test = best_players_yds(player_stats)
-        
-        # st.dataframe(test)
 
         pos_lst = player_stats["Pos"].unique()
 
-        # st.markdown(pos_lst)
-
-        # for i in pos_lst:
-
-        #     temp_df = player_stats.loc[player_stats["Pos"] == i]
-        #     # st.dataframe(temp_df)
-        #     temp_df_max = temp_df.iloc[player_stats["Yds"].idxmax()]
-
-        #     st.markdown(f"Best {i} is: ")
-        #     st.dataframe(temp_df_max, use_container_width=True)
-        #     # st.markdown(f"The best {i} is {player_stats.loc[player_stats['Pos'] == i]}")
+    st.markdown("-----")
+    today = datetime.now()
+    today_frmt = today.strftime("%d/%m/%Y")
+    st.markdown(f"This was updated in real time, so it means it updates at the same time as you view the data, just check the date 🗓️ {today_frmt}.")
 
 
 with tab3:
