@@ -13,9 +13,12 @@ st.sidebar.markdown("# Passing stats")
 
 st.sidebar.markdown("Select a season to analyze")
 
-# Get the current season's year + 1
+# Get the current season's year
 date = datetime.now()
 latest_season = int(date.strftime("%Y"))
+
+# Implement function to check 
+# check_season_yr = 
 
 # Selecting a season to analyze
 season_to_analyze = st.sidebar.selectbox(
@@ -53,6 +56,8 @@ def data_scrape(year: int):
 
     passing_players.reset_index(drop=True, inplace=True)
 
+    passing_players["Player"] = passing_players["Player"].map(lambda x: x.rstrip('*+'))
+
     return passing_players
 
 
@@ -78,8 +83,6 @@ filtered_df = player_stats[(player_stats['Tm'].isin(selected_team)) & (
     player_stats['Pos'].isin(selected_pos)) & (player_stats['Age'].isin(age_filter))]
 
 # Function definitions
-
-
 def league_avg(player_df: pd.DataFrame):
     temp_df = pd.DataFrame(columns=player_df.columns)
     temp_series = player_df.mean()
@@ -137,42 +140,34 @@ with tab1:
 
 # General stats
 with tab2:
+
+    st.markdown("## General stats")
+
+    st.markdown("### Player with the most _Yards Gained by Passing_")
+
+    # Best player regarding the yards gained
+    best_player_yds = player_stats.iloc[player_stats["Yds"].idxmax()]
+    player_name = best_player_yds["Player"]
+    player_yds = best_player_yds["Yds"]
+
+    top_two = player_stats["Yds"].nlargest(2)
+
+    st.markdown(f"The best player with __Yards Gained by Passing__ is")
+    # st.dataframe(best_player_yds, use_container_width=True)
+
+    st.metric(label=f"with {player_yds} yards passed", value=f"{player_name}",
+                delta=f"{player_yds-top_two[1]} yards above second place")
+
+
+    st.markdown("-----")
     st.markdown("### Displaying player stats with the selected filters")
     st.dataframe(filtered_df)
 
-    avg_t1, avg_t2, avg_t3 = st.tabs(
-        ["Best player in _Passing_", "Best player by position", '"Worst" player in _Passing_'])
+    today = datetime.now()
+    today_frmt = today.strftime("%d/%m/%Y")
+    st.markdown(f"This was updated in real time, so it means it updates at the same time as you view the data, just check the date 🗓️ {today_frmt}.")
 
-    with avg_t1:
-        st.markdown("### Player with the most _Yards Gained by Passing_")
-
-        # Best player regarding the yards gained
-        best_player_yds = player_stats.iloc[player_stats["Yds"].idxmax()]
-        player_name = best_player_yds["Player"]
-        player_yds = best_player_yds["Yds"]
-
-        st.markdown(
-            f"The best player is __{player_name}__ with __{player_yds}__ _Yards Gained by Passing_")
-        st.dataframe(best_player_yds, use_container_width=True)
-
-        today = datetime.now()
-        today_frmt = today.strftime("%d/%m/%Y")
-        st.markdown(
-            f"This was updated in real time, so it means it updates at the same time as you view the data, just check the date 🗓️ {today_frmt}.")
-
-    with avg_t2:
-        st.markdown(""" 
-        ### Best player by position
-        
-        Work in progress
-        """)
-
-    with avg_t3:
-        st.markdown('''
-        ### "Worst" player in passing
-        
-        Work in progress
-        ''')
+    
 
 # NFL average
 with tab3:
@@ -198,12 +193,25 @@ with tab4:
     raw_team_list = list(player_stats["Tm"].unique())
     team_lst = sorted(raw_team_list)
 
-    selected_team = st.selectbox("Select a team from the box:", team_lst)
+    col1, col2 = st.columns(2)
 
-    avg_tm_stats = team_avg(player_df=player_stats, team=selected_team)
+    with col1:
+        selected_team = st.selectbox("Select a team from the box:", team_lst)
 
-    st.markdown(f"#### Average statistics for {selected_team}")
-    st.dataframe(avg_tm_stats)
+        avg_tm_stats = team_avg(player_df=player_stats, team=selected_team)
+
+    with col2:
+        st.markdown(f"Information about {selected_team}")
+        st.markdown(f"""
+            - Age average: {avg_tm_stats["Age"]}
+            - Average games played: {avg_tm_stats["G"]}
+            - Average yards: {avg_tm_stats["Yds"]}
+        """)
+        st.table(avg_tm_stats)
+
+    st.markdown("----")
+
+    st.markdown(f"#### Additional information for {selected_team}")
 
     tm_title = f"{selected_team} average"
 
