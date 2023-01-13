@@ -98,11 +98,6 @@ def player_ages(player_ages):
 
 
 # Age filtering
-sort_player_ages = sorted(player_stats['Age'].unique())
-age_filter = st.sidebar.multiselect(
-    'Player age range', sort_player_ages, sort_player_ages)
-
-# Work in progress
 youngest_player = int(player_stats["Age"].min())
 oldest_player = int(player_stats["Age"].max())
 
