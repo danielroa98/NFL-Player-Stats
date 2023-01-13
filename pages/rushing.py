@@ -170,9 +170,6 @@ def compare_players_df(player_1_data, player_2_data, player_1_name, player_2_nam
 
 #         return pos_df
 
-# st.markdown("### Average statistics per team")
-# st.dataframe(average_stats)
-
 
 with tab1:
     st.markdown("""

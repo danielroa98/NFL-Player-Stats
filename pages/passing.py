@@ -20,6 +20,9 @@ latest_season = int(date.strftime("%Y"))
 # Implement function to check 
 # check_season_yr = 
 
+# Checking for experimental features
+experimental = True
+
 # Selecting a season to analyze
 season_to_analyze = st.sidebar.selectbox('Season', reversed(list(range(1980, latest_season))))
 
@@ -85,16 +88,32 @@ selected_team = st.sidebar.multiselect("Team", unique_team, unique_team)
 unique_pos = sorted(player_stats["Pos"].unique())
 selected_pos = st.sidebar.multiselect("Position", unique_pos, unique_pos)
 
+def player_ages(player_ages):
+    age_ranges = range(player_ages[0],player_ages[1], 1)
+
+    age_list = []
+    for i in age_ranges:
+        age_list.append(i)
+    return age_list
+
+
 # Age filtering
 sort_player_ages = sorted(player_stats['Age'].unique())
 age_filter = st.sidebar.multiselect(
     'Player age range', sort_player_ages, sort_player_ages)
 
 # Work in progress
-youngest_player = int(player_stats["Age"].min()) - 1
-oldest_player = int(player_stats["Age"].max()) + 1
+youngest_player = int(player_stats["Age"].min())
+oldest_player = int(player_stats["Age"].max())
 
-# age_filter_slider = st.sidebar.slider("Player age range (experimental)", min_value=youngest_player, max_value=oldest_player)
+age_filter_val = st.sidebar.slider(
+    "Player age range (experimental)", 
+    min_value=17, 
+    max_value=50,
+    value=(youngest_player, oldest_player),
+    )
+
+age_range = player_ages(player_ages=age_filter_val)
 
 # Function definitions
 def league_avg(player_df: pd.DataFrame):
@@ -134,8 +153,9 @@ def simplify_df(filtered_df):
     return "Hello"
 
 if dataframe_info == "All data":
-    filtered_df = player_stats[(player_stats['Tm'].isin(selected_team)) & (
-        player_stats['Pos'].isin(selected_pos)) & (player_stats['Age'].isin(age_filter))]
+    filtered_df = player_stats[(player_stats['Tm'].isin(selected_team)) & (player_stats['Pos'].isin(selected_pos)) & (player_stats['Age'].isin(age_filter))]
+    if experimental == True:
+        filtered_df = player_stats[(player_stats['Tm'].isin(selected_team)) & (player_stats['Pos'].isin(selected_pos)) & (player_stats['Age'].isin(age_range))]
 elif dataframe_info == "Basic":
     general_data = "basic"
 
