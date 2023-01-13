@@ -20,9 +20,6 @@ latest_season = int(date.strftime("%Y"))
 # Implement function to check 
 # check_season_yr = 
 
-# Checking for experimental features
-experimental = True
-
 # Selecting a season to analyze
 season_to_analyze = st.sidebar.selectbox('Season', reversed(list(range(1980, latest_season))))
 
@@ -98,6 +95,7 @@ def player_ages(player_ages):
 
 
 # Age filtering
+# Work in progress
 youngest_player = int(player_stats["Age"].min())
 oldest_player = int(player_stats["Age"].max())
 
@@ -148,9 +146,7 @@ def simplify_df(filtered_df):
     return "Hello"
 
 if dataframe_info == "All data":
-    filtered_df = player_stats[(player_stats['Tm'].isin(selected_team)) & (player_stats['Pos'].isin(selected_pos)) & (player_stats['Age'].isin(age_filter))]
-    if experimental == True:
-        filtered_df = player_stats[(player_stats['Tm'].isin(selected_team)) & (player_stats['Pos'].isin(selected_pos)) & (player_stats['Age'].isin(age_range))]
+    filtered_df = player_stats[(player_stats['Tm'].isin(selected_team)) & (player_stats['Pos'].isin(selected_pos)) & (player_stats['Age'].isin(age_range))]
 elif dataframe_info == "Basic":
     general_data = "basic"
 
