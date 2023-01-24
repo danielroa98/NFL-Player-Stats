@@ -85,6 +85,7 @@ selected_team = st.sidebar.multiselect("Team", unique_team, unique_team)
 unique_pos = sorted(player_stats["Pos"].unique())
 selected_pos = st.sidebar.multiselect("Position", unique_pos, unique_pos)
 
+# Age filtering
 def player_ages(player_ages):
     age_ranges = range(player_ages[0],player_ages[1], 1)
 
@@ -94,8 +95,7 @@ def player_ages(player_ages):
     return age_list
 
 
-# Age filtering
-# Work in progress
+# Age filtering - selection
 youngest_player = int(player_stats["Age"].min())
 oldest_player = int(player_stats["Age"].max())
 

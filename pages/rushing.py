@@ -12,11 +12,27 @@ st.sidebar.markdown("# Rushing")
 
 st.sidebar.markdown("Select a season to analyze")
 
-season_to_analyze = st.sidebar.selectbox(
-    'Season', reversed(list(range(1980, 2023))))
+# Get the current season's year
+date = datetime.now()
+latest_season = int(date.strftime("%Y"))
+
+# Implement function to check
+# check_season_yr =
+
+# Selecting a season to analyze
+season_to_analyze = st.sidebar.selectbox('Season', reversed(list(range(1980, latest_season))))
+
+st.sidebar.subheader("Select the amount of data you want to see")
+dataframe_info = st.sidebar.radio(
+    "Data to display",
+    ('All data', 'Basic')
+)
+
+st.sidebar.markdown("""
+    - If you choose  _Basic_, then you'll only see columns with basic information.
+""")
 
 st.sidebar.subheader("Sorting data")
-
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs(
     ['About', 'General stats', 'NFL Average', 'Team Average', 'Player Analysis'])
@@ -65,13 +81,33 @@ select_pos = st.sidebar.multiselect(
     'Position', unique_position, unique_position)
 
 # Age filtering
-sort_player_ages = sorted(player_stats['Age'].unique())
-age_filter = st.sidebar.multiselect(
-    'Player age', sort_player_ages, sort_player_ages)
+def player_ages(player_ages):
+    age_ranges = range(player_ages[0], player_ages[1], 1)
+
+    age_list = []
+    for i in age_ranges:
+        age_list.append(i)
+    return age_list
+
+
+# Age filtering - selection
+youngest_player = int(player_stats["Age"].min())
+oldest_player = int(player_stats["Age"].max())
+
+age_filter_val = st.sidebar.slider(
+    "Player age range",
+    min_value=17,
+    max_value=50,
+    value=(youngest_player, oldest_player),
+)
+
+age_filter = player_ages(player_ages=age_filter_val)
+# Age filtering
 
 # Data filtering
 df_selected_team = player_stats[(player_stats['Tm'].isin(select_team)) & (
     player_stats['Pos'].isin(select_pos)) & (player_stats['Age'].isin(age_filter))]
+
 
 
 def download_csv(team_df):
@@ -117,7 +153,6 @@ def player_information(player_df, player_name):
     temp_df.drop(labels=["Player", "Tm", "Pos"], inplace=True, axis=1)
 
     return temp_df
-
 
 def second_tm_avg(player_df, team):
     temp_df = pd.DataFrame(columns=player_df.columns)
@@ -314,8 +349,7 @@ with tab5:
 
     selected_player = st.selectbox("Select a player", player_list)
 
-    individual_player = player_information(
-        player_df=player_stats, player_name=selected_player)
+    individual_player = player_information(player_df=player_stats, player_name=selected_player)
 
     st.markdown(f"#### Statistics for {selected_player}")
     st.dataframe(individual_player, use_container_width=True)
